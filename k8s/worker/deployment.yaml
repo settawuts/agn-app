@@ -16,7 +16,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: agn-worker
-          image: ghcr.io/<your-repo>/worker:latest
+          image: ghcr.io/settawuts/agn-app/agn-app-worker:latest
 
           envFrom:
             - configMapRef:

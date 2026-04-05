@@ -16,7 +16,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: agn-api
-          image: ghcr.io/settawuts/agn-app/agn-app:latest
+          image: ghcr.io/settawuts/agn-app/agn-app-api:latest
           ports:
             - containerPort: 3000
 
