@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: app-config
-  namespace: prd
+  namespace: agn-app-prd
 data:
   APP_ENV: "prd"
   PORT: "3000"
