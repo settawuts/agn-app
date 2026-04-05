@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: uat
+data:
+  APP_ENV: "uat"
+  PORT: "3000"
+  HEARTBEAT_INTERVAL_MS: "10000"
