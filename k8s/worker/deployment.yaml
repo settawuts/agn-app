@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: worker
+  name: agn-worker
 spec:
   replicas: 2       
   selector:
     matchLabels:
-      app: worker
+      app: agn-worker
   template:
     metadata:
       labels:
-        app: worker
+        app: agn-worker
     spec:
       imagePullSecrets:
         - name: ghcr-secret
       containers:
-        - name: worker
+        - name: agn-worker
           image: ghcr.io/<your-repo>/worker:latest
 
           envFrom:

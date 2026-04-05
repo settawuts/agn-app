@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api
+  name: agn-api
 spec:
   replicas: 2         
   selector:
     matchLabels:
-      app: api
+      app: agn-api
   template:
     metadata:
       labels:
-        app: api
+        app: agn-api
     spec:
       imagePullSecrets:
         - name: ghcr-secret
       containers:
-        - name: api
-          image: ghcr.io/<your-repo>/app:latest
+        - name: agn-api
+          image: ghcr.io/settawuts/agn-app/agn-app:latest
           ports:
             - containerPort: 3000
 
