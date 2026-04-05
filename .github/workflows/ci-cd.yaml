@@ -152,6 +152,6 @@ jobs:
       - name: Deploy PROD
         if: github.ref == 'refs/heads/main'
         run: |
-          kubectl apply -f k8s/configmap-prod.yaml
+          kubectl apply -f k8s/configmap-prd.yaml
           kubectl set image deployment/api api=$IMAGE_NAME:${{ needs.build.outputs.image_tag }}
           kubectl rollout status deployment/api
