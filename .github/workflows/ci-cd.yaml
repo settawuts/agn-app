@@ -156,11 +156,14 @@ jobs:
             sudo snap install kubectl --classic
           fi
 
-      - name: Set kubeconfig
+      - name: Create Image Pull Secret
         run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ secrets.NICHOLAS_TOKEN }} \
+            --docker-email=${{ github.actor }}@users.noreply.github.com \
+            --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy DEV
         if: github.ref == 'refs/heads/dev'
@@ -191,12 +194,23 @@ jobs:
       - name: Deploy PROD
         if: github.ref == 'refs/heads/main'
         run: |
-          kubectl apply -f k8s/configmap-prd.yaml
-          kubectl apply -f k8s/api/deployment.yaml
-          kubectl apply -f k8s/api/service.yaml
-          kubectl apply -f k8s/api/hpa.yaml
-          kubectl apply -f k8s/worker/deployment.yaml
-          kubectl set image deployment/agn-api agn-api=$IMAGE_NAME_API:${{ needs.build.outputs.image_tag }}
-          kubectl set image deployment/agn-worker agn-worker=$IMAGE_NAME_WORKER:${{ needs.build.outputs.image_tag }}
-          kubectl rollout status deployment/agn-api
-          kubectl rollout status deployment/agn-worker
+
+          if [ "${GITHUB_REF}" == "refs/heads/dev" ]; then
+            NS=agn-app-dev
+          elif [ "${GITHUB_REF}" == "refs/heads/sit" ]; then
+            NS=agn-app-uat
+          elif [ "${GITHUB_REF}" == "refs/heads/main" ]; then
+            NS=agn-app-prd
+          fi
+
+          kubectl apply -f k8s/configmap-prd.yaml  -n $NS
+          kubectl apply -f k8s/api/deployment.yaml -n $NS
+          kubectl apply -f k8s/api/service.yaml -n $NS
+          kubectl apply -f k8s/api/hpa.yaml -n $NS
+          kubectl apply -f k8s/worker/deployment.yaml -n $NS
+
+          kubectl set image deployment/agn-api agn-api=$IMAGE_NAME_API:${{ needs.build.outputs.image_tag }} -n $NS
+          kubectl set image deployment/agn-worker agn-worker=$IMAGE_NAME_WORKER:${{ needs.build.outputs.image_tag }} -n $NS
+
+          kubectl rollout status deployment/agn-api -n $NS --timeout=120s
+          kubectl rollout status deployment/agn-worker -n $NS --timeout=120s
