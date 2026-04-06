@@ -2,11 +2,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: agn-api-svc
+  labels:
+    app: agn-api
 spec:
   selector:
     app: agn-api
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: 3000
-  type: ClusterIP
+      nodePort: 30080
+  type: NodePort

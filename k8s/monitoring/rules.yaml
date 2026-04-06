@@ -17,7 +17,7 @@ spec:
 
         - alert: WorkerStalled
           expr: |
-            time() - container_last_seen{container="agn-worker"} > 120
+            rate(process_cpu_seconds_total{job="agn-worker"}[2m]) == 0
           for: 2m
           labels:
             severity: warning
