@@ -166,6 +166,10 @@ jobs:
         if: github.ref == 'refs/heads/dev'
         run: |
           kubectl apply -f k8s/configmap-dev.yaml
+          kubectl apply -f k8s/api/deployment.yaml
+          kubectl apply -f k8s/api/service.yaml
+          kubectl apply -f k8s/api/hpa.yaml
+          kubectl apply -f k8s/worker/deployment.yaml
           kubectl set image deployment/agn-api agn-api=$IMAGE_NAME_API:${{ needs.build.outputs.image_tag }}
           kubectl set image deployment/agn-worker agn-worker=$IMAGE_NAME_WORKER:${{ needs.build.outputs.image_tag }}
           kubectl rollout status deployment/agn-api
@@ -175,6 +179,10 @@ jobs:
         if: github.ref == 'refs/heads/sit'
         run: |
           kubectl apply -f k8s/configmap-sit.yaml
+          kubectl apply -f k8s/api/deployment.yaml
+          kubectl apply -f k8s/api/service.yaml
+          kubectl apply -f k8s/api/hpa.yaml
+          kubectl apply -f k8s/worker/deployment.yaml
           kubectl set image deployment/agn-api agn-api=$IMAGE_NAME_API:${{ needs.build.outputs.image_tag }}
           kubectl set image deployment/agn-worker agn-worker=$IMAGE_NAME_WORKER:${{ needs.build.outputs.image_tag }}
           kubectl rollout status deployment/agn-api
@@ -184,6 +192,10 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           kubectl apply -f k8s/configmap-prd.yaml
+          kubectl apply -f k8s/api/deployment.yaml
+          kubectl apply -f k8s/api/service.yaml
+          kubectl apply -f k8s/api/hpa.yaml
+          kubectl apply -f k8s/worker/deployment.yaml
           kubectl set image deployment/agn-api agn-api=$IMAGE_NAME_API:${{ needs.build.outputs.image_tag }}
           kubectl set image deployment/agn-worker agn-worker=$IMAGE_NAME_WORKER:${{ needs.build.outputs.image_tag }}
           kubectl rollout status deployment/agn-api
