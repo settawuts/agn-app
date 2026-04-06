@@ -144,7 +144,12 @@ jobs:
   deploy:
     runs-on: self-hosted
     needs: build    
-    environment: prod       
+    environment: ${{ 
+      github.ref == 'refs/heads/dev' && 'dev' ||
+      github.ref == 'refs/heads/main' && 'uat' ||
+      github.ref == 'refs/heads/prod' && 'prod' ||
+      'dev'
+      }}
 
     steps:
       - name: Checkout
