@@ -165,45 +165,26 @@ jobs:
             --docker-email=${{ github.actor }}@users.noreply.github.com \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Deploy DEV
-        if: github.ref == 'refs/heads/dev'
-        run: |
-          kubectl apply -f k8s/configmap-dev.yaml
-          kubectl apply -f k8s/api/deployment.yaml
-          kubectl apply -f k8s/api/service.yaml
-          kubectl apply -f k8s/api/hpa.yaml
-          kubectl apply -f k8s/worker/deployment.yaml
-          kubectl set image deployment/agn-api agn-api=$IMAGE_NAME_API:${{ needs.build.outputs.image_tag }}
-          kubectl set image deployment/agn-worker agn-worker=$IMAGE_NAME_WORKER:${{ needs.build.outputs.image_tag }}
-          kubectl rollout status deployment/agn-api
-          kubectl rollout status deployment/agn-worker
 
-      - name: Deploy SIT
-        if: github.ref == 'refs/heads/sit'
-        run: |
-          kubectl apply -f k8s/configmap-sit.yaml
-          kubectl apply -f k8s/api/deployment.yaml
-          kubectl apply -f k8s/api/service.yaml
-          kubectl apply -f k8s/api/hpa.yaml
-          kubectl apply -f k8s/worker/deployment.yaml
-          kubectl set image deployment/agn-api agn-api=$IMAGE_NAME_API:${{ needs.build.outputs.image_tag }}
-          kubectl set image deployment/agn-worker agn-worker=$IMAGE_NAME_WORKER:${{ needs.build.outputs.image_tag }}
-          kubectl rollout status deployment/agn-api
-          kubectl rollout status deployment/agn-worker
-
-      - name: Deploy PROD
+      - name: Deploy to Kubernetes
         if: github.ref == 'refs/heads/main'
         run: |
 
           if [ "${GITHUB_REF}" == "refs/heads/dev" ]; then
             NS=agn-app-dev
+            CONFIGMAP=k8s/configmap-dev.yaml
           elif [ "${GITHUB_REF}" == "refs/heads/sit" ]; then
             NS=agn-app-uat
+            CONFIGMAP=k8s/configmap-sit.yaml
           elif [ "${GITHUB_REF}" == "refs/heads/main" ]; then
             NS=agn-app-prd
+            CONFIGMAP=k8s/configmap-prd.yaml
+          else
+            echo "Unknown branch: ${GITHUB_REF}"
+            exit 1
           fi
 
-          kubectl apply -f k8s/configmap-prd.yaml  -n $NS
+          kubectl apply -f $CONFIGMAP  -n $NS
           kubectl apply -f k8s/api/deployment.yaml -n $NS
           kubectl apply -f k8s/api/service.yaml -n $NS
           kubectl apply -f k8s/api/hpa.yaml -n $NS
@@ -212,8 +193,8 @@ jobs:
           kubectl set image deployment/agn-api agn-api=$IMAGE_NAME_API:${{ needs.build.outputs.image_tag }} -n $NS
           kubectl set image deployment/agn-worker agn-worker=$IMAGE_NAME_WORKER:${{ needs.build.outputs.image_tag }} -n $NS
 
-          kubectl apply -f k8s/monitoring/servicemonitor.yaml  -n $NS
-          kubectl apply -f k8s/monitoring/rules.yaml         -n $NS
+          kubectl apply -f k8s/monitoring/servicemonitor.yaml  -n monitoring
+          kubectl apply -f k8s/monitoring/rules.yaml         -n monitoring
 
           kubectl rollout status deployment/agn-api -n $NS --timeout=120s
           kubectl rollout status deployment/agn-worker -n $NS --timeout=120s
