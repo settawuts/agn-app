@@ -191,6 +191,7 @@ jobs:
           kubectl apply -f $CONFIGMAP  -n $NS
           kubectl apply -f k8s/api/deployment.yaml -n $NS
           kubectl apply -f k8s/api/service.yaml -n $NS
+          kubectl apply -f k8s/traffic/ingress.yaml  -n $NS
           kubectl apply -f k8s/api/hpa.yaml -n $NS
           kubectl apply -f k8s/worker/deployment.yaml -n $NS
 
