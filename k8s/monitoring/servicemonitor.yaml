@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: agn-api-monitor
+spec:
+  selector:
+    matchLabels:
+      app: agn-api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

@@ -212,5 +212,8 @@ jobs:
           kubectl set image deployment/agn-api agn-api=$IMAGE_NAME_API:${{ needs.build.outputs.image_tag }} -n $NS
           kubectl set image deployment/agn-worker agn-worker=$IMAGE_NAME_WORKER:${{ needs.build.outputs.image_tag }} -n $NS
 
+          kubectl apply -f k8s/monitoring/servicemonitor.yaml  -n $NS
+          kubectl apply -f k8s/monitoring/rules.yaml         -n $NS
+
           kubectl rollout status deployment/agn-api -n $NS --timeout=120s
           kubectl rollout status deployment/agn-worker -n $NS --timeout=120s
